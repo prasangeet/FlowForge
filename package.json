@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "name": "flowforge",
+  "version": "1.0.0",
+  "description": "something",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "cd backend && npm run dev",
+    "client" : "cd frontend && npm run dev",
+    "dev" : "concurrently \"npm run server\" \"npm run client\""
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC"
+}
