@@ -1,5 +1,8 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const fetchUserDetails = async () => {
   try {
@@ -9,7 +12,7 @@ export const fetchUserDetails = async () => {
       return;
     }
 
-    const response = await axios.get("http://localhost:5000/api/user/details", {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/details`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -9,6 +9,7 @@ import toast, { Toaster } from "react-hot-toast"; // Import toast and Toaster fo
 import axios from "axios"; // Import axios for API requests
 import { useEffect } from "react"; // Import useEffect for token checking
 import jwt from "jsonwebtoken"; // Import jwt for decoding the token
+import dotenv from 'dotenv';
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -16,6 +17,8 @@ const poppins = Poppins({
 });
 
 function ProfileSetupLayout({ children }) {
+
+  dotenv.config();
   const router = useRouter();
 
   // Handle logout process
@@ -30,7 +33,7 @@ function ProfileSetupLayout({ children }) {
       // If token exists, send the token with the logout request
       if (token) {
         const response = await axios.post(
-          "http://localhost:5000/api/auth/logout",
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
           {},
           {
             headers: {

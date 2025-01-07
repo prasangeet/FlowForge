@@ -24,7 +24,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditTaskDialog from "@/components/EditTaskDialog";
 import ConfirmRemoveUserDialog from "@/components/ConfirmRemoveUserDialog";
 
+import dotenv from 'dotenv';
+
 function ProjectPage() {
+  dotenv.config();
   const { projectId } = useParams();
   const router = useRouter();
   const [projectDetails, setProjectDetails] = useState(null);
@@ -48,6 +51,8 @@ function ProjectPage() {
   const [userToRemove, setUserToRemove] = useState(null);
 
   useEffect(() => {
+
+    
     const getProjectDetails = async () => {
       try {
         setLoading(true);
@@ -93,7 +98,7 @@ function ProjectPage() {
         return;
       }
       const response = await axios.delete(
-        `http://localhost:5000/api/projects/delete/${projectId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/projects/delete/${projectId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

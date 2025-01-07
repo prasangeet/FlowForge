@@ -31,6 +31,7 @@ export const signUp = async (req, res) => {
     // Save user details in Firestore
     const userDetails = {
       id: userRecord.uid,
+      profilePicture: "",
       username: userRecord.displayName,
       email: userRecord.email,
       companyName: "",
@@ -83,7 +84,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: uid, email: userData.email, username: userData.username, profileSetup: userData.profileSetup},
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "3h" }
     );
 
     res.status(200).json({
@@ -101,3 +102,58 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   res.status(200).send({ message: "Logout successful" });
 };
+
+export const loginWithGoogle = async (req, res) => {
+  const {idToken} = req.body;
+
+  if(!idToken){
+    return res.status(400).json({ error: "ID token is missing" });
+  }
+
+  try{
+    const decodeToken = await auth.verifyIdToken(idToken);
+    const { uid, email, username } = decodeToken;
+
+    const userRef = db.collection("users").doc(uid);
+    const userDoc = await userRef.get();
+
+    let userData;
+    if(!userDoc.exists){
+      userData = {
+        id: uid,
+        profilePicture: "",
+        username: username || "",
+        email,
+        companyName: "",
+        role: "",
+        contactNumber: "",
+        profilesetup: false,
+        createdAt: new Date().toISOString(),
+        projects: [],
+      }
+      await userRef.set(userData);
+    }else{
+      userData = userDoc.data();
+    }
+
+    const token = jwt.sign(
+      {
+        id: uid,
+        email: userData.email,
+        username: userData.username,
+        profileSetup: userData.profilesetup,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "3h" }
+    );
+
+    res.status(200).json({
+      message: "Google login successful",
+      token,
+      user: userData,
+    });
+  }catch(error){
+    console.error("Google login error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+}

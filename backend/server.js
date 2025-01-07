@@ -1,8 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import {db} from "./config/firebase.js";
-import authRoutes from "./routes/authRoutes.js"
+import { db } from "./config/firebase.js";
+import authRoutes from "./routes/authRoutes.js";
+import updateprofileRoutes from "./routes/updateprofileRoutes.js";
+import userRoutes from './routes/userRoutes.js'
+import projectRoutes from './routes/projectRoute.js'
+import { authenticate } from "./middlewares/authMiddleware.js";
+import taskRoutes from './routes/taskRoutes.js'
 
 dotenv.config();
 
@@ -19,6 +24,10 @@ app.use((err, req, res, next) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", updateprofileRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/projects", authenticate, taskRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello world");

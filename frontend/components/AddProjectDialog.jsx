@@ -67,7 +67,7 @@ function AddProjectDialog({ onProjectAdded, onClose }) {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/projects/create",
+        `${process.env.NEXT_PUBLIC_API_URL}/projects/create`,
         {
           title: formData.projectTitle,
           description: formData.description,

@@ -27,7 +27,7 @@ export default function Login() {
   const verifyToken = useCallback( async (token) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/verify-token",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-token`,
         {
           method: "GET",
           headers: {
@@ -54,7 +54,7 @@ export default function Login() {
       toast.error("Invalid or expired token. Please log in again.");
     }
   }, [router]);
-  
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -71,7 +71,7 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
       const response = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/google-login`,
         { idToken }
       );
 
@@ -104,7 +104,7 @@ export default function Login() {
 
     try {
       // Step 1: Make a request to the login API
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

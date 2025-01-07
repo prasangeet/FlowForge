@@ -1,5 +1,8 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const addTask = async (projectId, taskData) => {
   try {
@@ -10,7 +13,7 @@ export const addTask = async (projectId, taskData) => {
     }
 
     const response = await axios.post(
-      `http://localhost:5000/api/projects/${projectId}/tasks`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks`,
       taskData,
       {
         headers: {
@@ -38,7 +41,7 @@ export const getAllTasks = async (projectId) => {
     }
 
     const response = await axios.get(
-      `http://localhost:5000/api/projects/${projectId}/tasks`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -64,7 +67,7 @@ export const editTask = async (projectId, taskId, taskData) => {
     }
     
     const response = await axios.put(
-      `http://localhost:5000/api/projects/${projectId}/tasks/${taskId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}`,
       taskData,
       {
         headers:{
@@ -90,7 +93,7 @@ export const deleteTask = async (projectId, taskId) => {
       toast.error("Please login to access this page");
       return false;
     }
-    const response = await axios.delete(`http://localhost:5000/api/projects/${projectId}/tasks/${taskId}`, {
+    const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -109,7 +112,7 @@ export const deleteTask = async (projectId, taskId) => {
 export const updateNote = async (projectId, taskId, noteData) => {
   try {
     const response = await axios.post(
-      `http://localhost:5000/api/projects/${projectId}/tasks/${taskId}/updates`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}/updates`,
       noteData,
       {
         headers: {
@@ -132,7 +135,7 @@ export const updateNote = async (projectId, taskId, noteData) => {
 export const fetchNotes = async(projectId, taskId) => {
   try{
     const response = await axios.get(
-      `http://localhost:5000/api/projects/${projectId}/tasks/${taskId}/updates`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}/updates`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, // Include authentication token

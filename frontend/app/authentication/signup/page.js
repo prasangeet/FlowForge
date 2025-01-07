@@ -27,7 +27,7 @@ export default function SignUp() {
   const verifyToken = useCallback(async (token) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/verify-token",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-token`,
         {
           method: "GET",
           headers: {
@@ -77,7 +77,7 @@ export default function SignUp() {
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
       const response = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/google-login`,
         { idToken }
       );
 
@@ -105,7 +105,7 @@ export default function SignUp() {
 
     try {
       // Step 1: Make a request to your backend sign-up API
-      const response = await fetch("http://localhost:5000/api/auth/signup", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +125,7 @@ export default function SignUp() {
 
       // Step 2: Automatically log in the user
       const loginResponse = await fetch(
-        "http://localhost:5000/api/auth/login",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         {
           method: "POST",
           headers: {

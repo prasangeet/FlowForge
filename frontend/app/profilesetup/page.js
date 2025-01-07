@@ -38,7 +38,7 @@ export default function ProfileSetup() {
   const verifyProfileSetup = useCallback( async (token) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/verify-token",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-token`,
         {
           method: "GET",
           headers: {
@@ -104,7 +104,7 @@ export default function ProfileSetup() {
 
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/profile/update",
+        `${process.env.NEXT_PUBLIC_API_URL}/profile/update`,
         formDataToSend,
         {
           headers: {

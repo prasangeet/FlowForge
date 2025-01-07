@@ -1,5 +1,8 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const fetchProjectDetails = async () => {
   try {
@@ -10,7 +13,7 @@ export const fetchProjectDetails = async () => {
     }
 
     const response = await axios.get(
-      "http://localhost:5000/api/projects/user-projects",
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/user-projects`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -39,7 +42,7 @@ export const fetchProjectById = async (projectId) => {
     }
 
     const response = await axios.get(
-      `http://localhost:5000/api/projects/${projectId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -61,7 +64,7 @@ export const addMembers = async (projectId, username, role) => {
     }
 
     const response = await axios.post(
-      `http://localhost:5000/api/projects/add-user`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/add-user`,
       {
         projectId: projectId ? projectId : "",
         username: username,
@@ -89,7 +92,7 @@ export const searchMembers = async (username, existingMembers) => {
       throw new Error("Unauthorized. Please log in.");
     }
 
-    const response = await axios.get(`http://localhost:5000/api/user/search`, {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/search`, {
       params: { username },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -121,7 +124,7 @@ export const removeUser = async (projectId, userId) => {
     }
 
     const response = await axios.delete(
-      `http://localhost:5000/api/projects/${projectId}/remove-user`,
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/remove-user`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +155,7 @@ export const fetchActivities = async (projectId) => {
       return;
     }
     const response = await axios.get(
-      `http://localhost:5000/api/projects/${projectId}/activities
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/activities
         `,
       {
         headers: {

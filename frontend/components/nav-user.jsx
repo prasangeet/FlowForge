@@ -49,7 +49,7 @@ export function NavUser() {
         }
 
         const response = await axios.get(
-          "http://localhost:5000/api/user/details",
+          `${process.env.NEXT_PUBLIC_API_URL}/user/details`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ export function NavUser() {
 
       if (token) {
         const response = await axios.post(
-          "http://localhost:5000/api/auth/logout",
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
           {},
           {
             headers: {

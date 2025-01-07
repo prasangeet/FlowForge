@@ -1,17 +1,19 @@
 {
   "dependencies": {
-    "concurrently": "^9.1.0"
+    "axios": "^1.7.9",
+    "concurrently": "^9.1.0",
+    "dotenv": "^16.4.7",
+    "multer": "^1.4.5-lts.1"
   },
   "name": "flowforge",
   "version": "1.0.0",
   "description": "something",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "cd backend && npm run dev",
-    "client" : "cd frontend && npm run dev",
-    "dev" : "concurrently \"npm run server\" \"npm run client\""
+    "client": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "type": "module",
   "author": "",
