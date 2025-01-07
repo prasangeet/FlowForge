@@ -2,12 +2,15 @@
 
 import Image from "next/image";
 import { poppins, ubuntu } from "../../fonts/fonts";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import dotenv from "dotenv";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import axios from "axios";
+import { auth } from "@/firebase";
 
 export default function SignUp() {
   dotenv.config();
@@ -20,16 +23,8 @@ export default function SignUp() {
   const [progress, setProgress] = useState(0); // Use progress bar for signup
   const [isSigningUp, setIsSigningUp] = useState(false); // Track signup process
   const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      verifyToken(token);
-    }
-  }, [router]);
-
-  const verifyToken = async (token) => {
+  
+  const verifyToken = useCallback(async (token) => {
     try {
       const response = await fetch(
         "http://localhost:5000/api/auth/verify-token",
@@ -58,11 +53,49 @@ export default function SignUp() {
       router.push("/authentication/login");
       toast.error("Invalid or expired token. Please log in again.");
     }
-  };
+  }, [router]);
+
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      verifyToken(token);
+    }
+  }, [router, verifyToken]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const provider = new GoogleAuthProvider();
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/google-login",
+        { idToken }
+      );
+
+      const { token, user } = response.data;
+
+      localStorage.setItem("token", token);
+
+      toast.success("Login Successfully");
+
+      if (!user.profilesetup) {
+        router.push("/profilesetup");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Google login error:", error.message);
+      toast.error("Google login failed. Please try again.");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -274,7 +307,10 @@ export default function SignUp() {
                 OR
               </span>
             </div>
-            <button className="mt-4 w-full flex items-center justify-center px-4 py-3 sm:py-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <button
+              onClick={handleGoogleLogin}
+              className="mt-4 w-full flex items-center justify-center px-4 py-3 sm:py-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
               <Image
                 className="w-5 h-5 mr-4"
                 src="/google.png"
