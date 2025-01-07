@@ -374,7 +374,7 @@ function TestimonialCard({ quote, author, image }) {
           className="rounded-full"
         />
         <div>
-          <blockquote className="text-lg italic mb-4">"{quote}"</blockquote>
+          <blockquote className="text-lg italic mb-4">&quot;{quote}&quot;</blockquote>
           <p className="font-semibold">{author}</p>
         </div>
       </CardContent>
