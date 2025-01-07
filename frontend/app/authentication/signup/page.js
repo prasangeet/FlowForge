@@ -123,7 +123,6 @@ export default function SignUp() {
       const data = await response.json();
       toast.success("Account created successfully!");
 
-      // Step 2: Automatically log in the user
       const loginResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         {
