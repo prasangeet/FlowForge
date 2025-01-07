@@ -16,7 +16,7 @@ function ProjectCard({ title, description, projectId }) {
     >
       <div className="relative w-full h-36 sm:h-48">
         <Image
-          src="/projectimage.png"
+          src="/projectImage.png"
           layout="fill"
           objectFit="cover"
           alt="Project cover"
