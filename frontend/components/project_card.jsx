@@ -8,6 +8,7 @@ function ProjectCard({ title, description, projectId }) {
   const handleProjectClick = () => {
     router.push(`/dashboard/projects/${projectId}`);
   };
+  
 
   return (
     <div 
