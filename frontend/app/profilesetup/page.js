@@ -24,6 +24,39 @@ export default function ProfileSetup() {
   const [isSubmitting, setIsSubmitting] = useState(false); // Track form submission status
   const router = useRouter();
 
+  const verifyProfileSetup = useCallback(
+    async (token) => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-token`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user.profilesetup) {
+            router.push("/dashboard"); // Redirect to dashboard if profile is set up
+          }
+        } else {
+          // If the token verification failed
+          toast.error("Token verification failed.");
+          router.push("/authentication/login"); // Navigate user to the login page
+        }
+      } catch (error) {
+        // Handle any errors during token verification
+        console.error("Error verifying token", error);
+        toast.error("An error occurred during token verification.");
+        router.push("/authentication/login"); // Ensure user is redirected to login page
+      }
+    },
+    [router]
+  );
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -34,36 +67,6 @@ export default function ProfileSetup() {
       toast.error("you must login to access this pagey");
     }
   }, [router, verifyProfileSetup]);
-
-  const verifyProfileSetup = useCallback( async (token) => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-token`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user.profilesetup) {
-          router.push("/dashboard"); // Redirect to dashboard if profile is set up
-        }
-      } else {
-        // If the token verification failed
-        toast.error("Token verification failed.");
-        router.push("/authentication/login"); // Navigate user to the login page
-      }
-    } catch (error) {
-      // Handle any errors during token verification
-      console.error("Error verifying token", error);
-      toast.error("An error occurred during token verification.");
-      router.push("/authentication/login"); // Ensure user is redirected to login page
-    }
-  }, [router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
