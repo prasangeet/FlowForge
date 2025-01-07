@@ -373,6 +373,8 @@ function TestimonialCard({ quote, author, image }) {
           height={80}
           className="rounded-full"
         />
+
+        
         <div>
           <blockquote className="text-lg italic mb-4">&quot;{quote}&quot;</blockquote>
           <p className="font-semibold">{author}</p>
