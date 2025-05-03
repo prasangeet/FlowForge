@@ -4,27 +4,50 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { fetchProjectById, removeUser } from "@/app/utilities/projectUtils";
-import { Settings, Users, Clipboard, Info, Trash2, Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import {
+  Settings,
+  Users,
+  Clipboard,
+  Info,
+  Trash2,
+  Plus,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 import axios from "axios";
 import { format } from "date-fns";
 import { toast } from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetchUserDetails } from "@/app/utilities/userUtils";
 import AddMembers from "@/components/AddMembers";
-import { addTask, editTask, getAllTasks, deleteTask } from "@/app/utilities/taskUtils";
+import {
+  addTask,
+  editTask,
+  getAllTasks,
+  deleteTask,
+} from "@/app/utilities/taskUtils";
 import DeleteProjectDialog from "@/components/DeleteProjectDialog";
 import AddTaskDialog from "@/components/AddTaskDialog";
 import TaskDetailsSheet from "@/components/TaskDetailsSheet";
 import TaskDropdownMenu from "@/components/TaskDropdownMenu";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditTaskDialog from "@/components/EditTaskDialog";
 import ConfirmRemoveUserDialog from "@/components/ConfirmRemoveUserDialog";
 
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 function ProjectPage() {
   dotenv.config();
@@ -51,8 +74,6 @@ function ProjectPage() {
   const [userToRemove, setUserToRemove] = useState(null);
 
   useEffect(() => {
-
-    
     const getProjectDetails = async () => {
       try {
         setLoading(true);
@@ -189,28 +210,33 @@ function ProjectPage() {
   };
 
   const calculateProgress = () => {
-    if (!tasks || tasks.length === 0) return { completed: 0, inProgress: 0, pending: 0 };
+    if (!tasks || tasks.length === 0)
+      return { completed: 0, inProgress: 0, pending: 0 };
     const total = tasks.length;
-    const completed = tasks.filter(task => task.status === "completed").length;
-    const inProgress = tasks.filter(task => task.status === "in progress").length;
+    const completed = tasks.filter(
+      (task) => task.status === "completed"
+    ).length;
+    const inProgress = tasks.filter(
+      (task) => task.status === "in progress"
+    ).length;
     const pending = total - completed - inProgress;
     return {
       completed: (completed / total) * 100,
       inProgress: (inProgress / total) * 100,
-      pending: (pending / total) * 100
+      pending: (pending / total) * 100,
     };
   };
 
   const handleDeleteTask = async (taskId) => {
     const success = await deleteTask(projectId, taskId);
     if (success) {
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
       toast.success("Task deleted successfully!");
     }
   };
 
   const handleRemoveUser = async (userId) => {
-    setUserToRemove(projectDetails.users.find(user => user.id === userId));
+    setUserToRemove(projectDetails.users.find((user) => user.id === userId));
     setIsRemoveUserDialogOpen(true);
   };
 
@@ -229,7 +255,6 @@ function ProjectPage() {
     }
   };
 
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-600">
@@ -245,7 +270,6 @@ function ProjectPage() {
       </div>
     );
   }
-
 
   const ProjectInfo = () => (
     <div className="flex h-full flex-col bg-white p-4 overflow-y-auto">
@@ -265,22 +289,35 @@ function ProjectPage() {
         <div>
           <h3 className="text-sm font-medium text-gray-500">Progress</h3>
           <div className="mt-2 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-green-500" 
-              style={{ width: `${calculateProgress().completed}%`, float: 'left' }}
+            <div
+              className="h-full bg-green-500"
+              style={{
+                width: `${calculateProgress().completed}%`,
+                float: "left",
+              }}
             />
-            <div 
-              className="h-full bg-blue-500" 
-              style={{ width: `${calculateProgress().inProgress}%`, float: 'left' }}
+            <div
+              className="h-full bg-blue-500"
+              style={{
+                width: `${calculateProgress().inProgress}%`,
+                float: "left",
+              }}
             />
-            <div 
-              className="h-full bg-yellow-500" 
-              style={{ width: `${calculateProgress().pending}%`, float: 'left' }}
+            <div
+              className="h-full bg-yellow-500"
+              style={{
+                width: `${calculateProgress().pending}%`,
+                float: "left",
+              }}
             />
           </div>
           <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-gray-600 mt-1">
-            <span className="mb-1 sm:mb-0">Completed: {Math.round(calculateProgress().completed)}%</span>
-            <span className="mb-1 sm:mb-0">In Progress: {Math.round(calculateProgress().inProgress)}%</span>
+            <span className="mb-1 sm:mb-0">
+              Completed: {Math.round(calculateProgress().completed)}%
+            </span>
+            <span className="mb-1 sm:mb-0">
+              In Progress: {Math.round(calculateProgress().inProgress)}%
+            </span>
             <span>Pending: {Math.round(calculateProgress().pending)}%</span>
           </div>
         </div>
@@ -297,71 +334,86 @@ function ProjectPage() {
         </div>
         {projectDetails.users.some(
           (user) => user.id === currentUserId && user.role === "admin"
-        ) && (<Button
-          onClick={() => setIsAddTaskDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Task
-        </Button>)}
+        ) && (
+          <Button
+            onClick={() => setIsAddTaskDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Task
+          </Button>
+        )}
       </div>
       <div className="flex-1 overflow-auto p-4 space-y-4">
-        {Object.entries(groupTasksByStatus(tasks)).map(([status, statusTasks]) => (
-          <Collapsible key={status} defaultOpen>
-            <CollapsibleTrigger className="flex items-center gap-2 w-full hover:bg-gray-50 p-2 rounded-lg">
-              <Badge variant="outline" className={`px-2 py-1 ${getTaskStatusColor(status)}`}>
-                {status.toUpperCase()} ({statusTasks.length})
-              </Badge>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2 space-y-2">
-              {statusTasks.map((task) => (
-                <Card 
-                  key={task.id} 
-                  className="hover:shadow-md transition-shadow text-sm sm:text-base"
+        {Object.entries(groupTasksByStatus(tasks)).map(
+          ([status, statusTasks]) => (
+            <Collapsible key={status} defaultOpen>
+              <CollapsibleTrigger className="flex items-center gap-2 w-full hover:bg-gray-50 p-2 rounded-lg">
+                <Badge
+                  variant="outline"
+                  className={`px-2 py-1 ${getTaskStatusColor(status)}`}
                 >
-                  <CardHeader className="p-4">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base flex items-center">
-                        {task.title}
-                        <Badge variant="outline" className={`ml-2 ${getTaskStatusColor(task.status)}`}>
-                          {task.status}
-                        </Badge>
-                      </CardTitle>
-                      <TaskDropdownMenu
-                        task={task}
-                        onView={() => {
-                          setSelectedTask(task);
-                          setIsTaskDetailsOpen(true);
-                        }}
-                        onEdit={() => {
-                          setSelectedTask(task);
-                          setIsEditTaskDialogOpen(true);
-                        }}
-                        onDelete={() => handleDeleteTask(task.id)}
-                        isAdmin={projectDetails.users.some(
-                          (user) => user.id === currentUserId && user.role === "admin"
-                        )}
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 space-y-2">
-                    <p className="text-sm text-gray-600">{task.description}</p>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {format(new Date(task.dueDate), "MMM dd, yyyy")}
+                  {status.toUpperCase()} ({statusTasks.length})
+                </Badge>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2 space-y-2">
+                {statusTasks.map((task) => (
+                  <Card
+                    key={task.id}
+                    className="hover:shadow-md transition-shadow text-sm sm:text-base"
+                  >
+                    <CardHeader className="p-4">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base flex items-center">
+                          {task.title}
+                          <Badge
+                            variant="outline"
+                            className={`ml-2 ${getTaskStatusColor(
+                              task.status
+                            )}`}
+                          >
+                            {task.status}
+                          </Badge>
+                        </CardTitle>
+                        <TaskDropdownMenu
+                          task={task}
+                          onView={() => {
+                            setSelectedTask(task);
+                            setIsTaskDetailsOpen(true);
+                          }}
+                          onEdit={() => {
+                            setSelectedTask(task);
+                            setIsEditTaskDialogOpen(true);
+                          }}
+                          onDelete={() => handleDeleteTask(task.id)}
+                          isAdmin={projectDetails.users.some(
+                            (user) =>
+                              user.id === currentUserId && user.role === "admin"
+                          )}
+                        />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {task.assignedTo}
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0 space-y-2">
+                      <p className="text-sm text-gray-600">
+                        {task.description}
+                      </p>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          {format(new Date(task.dueDate), "MMM dd, yyyy")}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          {task.assignedTo}
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </CollapsibleContent>
-          </Collapsible>
-        ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          )
+        )}
       </div>
     </div>
   );
@@ -376,7 +428,10 @@ function ProjectPage() {
         {projectDetails.users.some(
           (user) => user.id === currentUserId && user.role === "admin"
         ) && (
-          <AddMembers projectId={projectId} existingMembers={projectDetails.users}/>
+          <AddMembers
+            projectId={projectId}
+            existingMembers={projectDetails.users}
+          />
         )}
       </div>
       <div className="flex-1 overflow-auto p-4">
@@ -388,29 +443,30 @@ function ProjectPage() {
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user.profilePicture} alt={user.fullName} />
-                <AvatarFallback>
-                  {user.fullName[0]}
-                </AvatarFallback>
+                <AvatarFallback>{user.fullName[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user.fullName}</p>
-                <p className="text-xs text-gray-500 truncate">@{user.username}</p>
+                <p className="text-xs text-gray-500 truncate">
+                  @{user.username}
+                </p>
               </div>
               <Badge variant="secondary" className="text-xs">
                 {user.role}
               </Badge>
               {projectDetails.users.some(
                 (u) => u.id === currentUserId && u.role === "admin"
-              ) && currentUserId !== user.id && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleRemoveUser(user.id)}
-                  className="ml-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
+              ) &&
+                currentUserId !== user.id && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRemoveUser(user.id)}
+                    className="ml-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
             </div>
           ))}
         </div>
@@ -428,13 +484,22 @@ function ProjectPage() {
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
           </TabsList>
-          <TabsContent value="info" className="mt-4 h-[calc(100vh-8rem)] overflow-y-auto">
+          <TabsContent
+            value="info"
+            className="mt-4 h-[calc(100vh-8rem)] overflow-y-auto"
+          >
             <ProjectInfo />
           </TabsContent>
-          <TabsContent value="tasks" className="mt-4 h-[calc(100vh-8rem)] overflow-y-auto">
+          <TabsContent
+            value="tasks"
+            className="mt-4 h-[calc(100vh-8rem)] overflow-y-auto"
+          >
             <TaskList />
           </TabsContent>
-          <TabsContent value="team" className="mt-4 h-[calc(100vh-8rem)] overflow-y-auto">
+          <TabsContent
+            value="team"
+            className="mt-4 h-[calc(100vh-8rem)] overflow-y-auto"
+          >
             <TeamMembers />
           </TabsContent>
         </Tabs>
@@ -442,7 +507,10 @@ function ProjectPage() {
 
       {/* Desktop View */}
       <div className="hidden md:block">
-        <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+        <ResizablePanelGroup
+          direction="horizontal"
+          className="rounded-lg border"
+        >
           <ResizablePanel defaultSize={25} minSize={20}>
             <ProjectInfo />
           </ResizablePanel>
@@ -466,7 +534,9 @@ function ProjectPage() {
         <Button
           variant="outline"
           className="flex items-center gap-2"
-          onClick={() => router.push(`/dashboard/projects/${projectId}/settings`)}
+          onClick={() =>
+            router.push(`/dashboard/projects/${projectId}/settings`)
+          }
         >
           <Settings className="h-4 w-4" />
           Settings
@@ -497,7 +567,7 @@ function ProjectPage() {
         setIsOpen={setIsTaskDetailsOpen}
         task={selectedTask}
         projectUsers={projectDetails?.users || []}
-        projectId = {projectId}
+        projectId={projectId}
       />
       <EditTaskDialog
         isOpen={isEditTaskDialogOpen}
@@ -510,11 +580,10 @@ function ProjectPage() {
         isOpen={isRemoveUserDialogOpen}
         setIsOpen={setIsRemoveUserDialogOpen}
         onConfirm={confirmRemoveUser}
-        userName={userToRemove?.fullName || ''}
+        userName={userToRemove?.fullName || ""}
       />
     </div>
   );
 }
 
 export default ProjectPage;
-

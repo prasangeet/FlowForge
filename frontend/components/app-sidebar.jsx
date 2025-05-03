@@ -81,11 +81,9 @@ export function AppSidebar({ handleLogout, ...props }) {
     const fetchProjects = async () => {
       try {
         const data = await fetchProjectDetails();
-        console.log("Fetched project data:", data); // Debugging line
         if (data) {
           const projectDetails = data.map((project) => {
             const url = `/dashboard/projects/${project.id}`;
-            console.log("Project:", project); // Debugging line
             return {
               name: project.title,
               url,

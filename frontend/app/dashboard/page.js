@@ -29,7 +29,6 @@ function OverviewDashboard() {
       try {
         const data = await getRecentDeadlines();
         setRecentDealines(data);
-        console.log("Recent deadlines:", data);
       } catch (error) {
         console.error("Error fetching recent deadlines:", error);
       }
@@ -39,7 +38,6 @@ function OverviewDashboard() {
       try {
         const data = await getAllTasksForUser();
         setAllTasks(data);
-        console.log("All tasks:", data);
       } catch (error) {
         console.error("Error fetching all tasks:", error);
       }
@@ -48,7 +46,6 @@ function OverviewDashboard() {
     const fetchAndUpdateExpiredTasks = async () => {
       try {
         const data = await updateExpiredTasks();
-        console.log("Expired tasks updated:", data);
       } catch (error) {
         console.error("Error updating expired tasks:", error);
       }
