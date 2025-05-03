@@ -90,6 +90,7 @@ export function NavUser() {
       if (token) {
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+          {},
           {
             headers: {
               Authorization: `Bearer ${token}`,
