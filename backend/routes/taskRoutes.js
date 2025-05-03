@@ -5,8 +5,11 @@ import {
   deleteTask,
   editTask,
   fetchUpdates,
+  getAllTasks,
+  getRecentDeadlines,
   gettaskDetails,
   getTasks,
+  UpdateExpiredTasks,
   updateTaskNotes,
 } from "../controllers/taskController.js";
 
@@ -26,6 +29,10 @@ router.post("/:projectId/tasks/:taskId/updates", authenticate, updateTaskNotes);
 
 router.get("/:projectId/tasks/:taskId/updates", authenticate, fetchUpdates);
 
+router.get("/tasks/recent-deadlines", authenticate, getRecentDeadlines);
 
+router.get("/tasks/allTasks", authenticate, getAllTasks);
+
+router.get("/tasks/expiredTasks",authenticate, UpdateExpiredTasks);
 
 export default router;

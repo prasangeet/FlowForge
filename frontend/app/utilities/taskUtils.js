@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export const addTask = async (projectId, taskData) => {
   try {
     const token = localStorage.getItem("token");
@@ -48,8 +50,8 @@ export const getAllTasks = async (projectId) => {
         },
       }
     );
-    if(response.status == 200){
-        return response.data.tasks;
+    if (response.status == 200) {
+      return response.data.tasks;
     }
   } catch (error) {
     toast.error("Failed to get tasks");
@@ -59,32 +61,32 @@ export const getAllTasks = async (projectId) => {
 };
 
 export const editTask = async (projectId, taskId, taskData) => {
-  try{
+  try {
     const token = localStorage.getItem("token");
-    if(!token){
+    if (!token) {
       toast.error("Please login to access this page");
       return;
     }
-    
+
     const response = await axios.put(
       `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}`,
       taskData,
       {
-        headers:{
+        headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       }
-    )
+    );
 
-    if(response.status === 200){
+    if (response.status === 200) {
       return true;
     }
-  }catch(error){
+  } catch (error) {
     toast.error("Failed to update task");
     console.log(error);
     return false;
   }
-}
+};
 
 export const deleteTask = async (projectId, taskId) => {
   try {
@@ -93,11 +95,14 @@ export const deleteTask = async (projectId, taskId) => {
       toast.error("Please login to access this page");
       return false;
     }
-    const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (response.status === 200) {
       toast.success("Task deleted successfully!");
       return true;
@@ -120,37 +125,117 @@ export const updateNote = async (projectId, taskId, noteData) => {
         },
       }
     );
-    if(response.status == 200){
+    if (response.status == 200) {
       return true;
-    }else{
+    } else {
       return false;
     }
   } catch (error) {
-    console.error("Error updating task notes:", error.response?.data || error.message);
+    console.error(
+      "Error updating task notes:",
+      error.response?.data || error.message
+    );
     toast.error("Failed to update task notes");
     throw new Error(error.response?.data?.error || "Failed to update notes");
   }
 };
 
-export const fetchNotes = async(projectId, taskId) => {
-  try{
+export const fetchNotes = async (projectId, taskId) => {
+  try {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/tasks/${taskId}/updates`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, // Include authentication token
-        }
+        },
       }
-    )
+    );
 
-    if(response.status == 200){
+    if (response.status == 200) {
       return response.data.updates;
     } else {
       return [];
     }
-  }catch(error){
+  } catch (error) {
     console.error("Error fetching notes:", error);
     toast.error("Failed to fetch notes");
     return [];
   }
-}
+};
+
+export const getRecentDeadlines = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to access this page");
+      return;
+    }
+    const response = await axios.get(
+      `${BASE_URL}/projects/tasks/recent-deadlines`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status == 200) {
+      return response.data.deadlines;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching recent deadlines:", error);
+    toast.error("Failed to fetch recent deadlines");
+    return [];
+  }
+};
+
+export const getAllTasksForUser = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to access this page");
+      return;
+    }
+    const response = await axios.get(`${BASE_URL}/projects/tasks/allTasks`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status == 200) {
+      return response.data.tasks;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching all tasks:", error);
+    toast.error("Failed to fetch all tasks");
+    return [];
+  }
+};
+
+export const updateExpiredTasks = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to access this page");
+      return;
+    }
+    const response = await axios.get(
+      `${BASE_URL}/projects/tasks/expiredTasks`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status == 200) {
+      return response.data.tasks;
+    }
+  } catch (error) {
+    console.error("Error fetching expired tasks:", error);
+    toast.error("Failed to fetch expired tasks");
+    return [];
+  }
+};

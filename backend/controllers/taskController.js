@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import { format } from "date-fns"; // Importing date-fns for formatting
 import { addActivity } from "./handleActivities.js";
 
-
 dotenv.config();
 
 export const createTask = async (req, res) => {
@@ -62,7 +61,11 @@ export const createTask = async (req, res) => {
 
     await taskRef.set(taskData);
 
-    await addActivity(projectId, authenticateUserId, `Created a task: ${title}`);
+    await addActivity(
+      projectId,
+      authenticateUserId,
+      `Created a task: ${title}`
+    );
 
     res.status(201).json({
       message: "Task created successfully",
@@ -174,7 +177,11 @@ export const editTask = async (req, res) => {
       updatedAt: new Date(),
     });
 
-    await addActivity(projectId, req.user.id, `Edited task: ${taskDoc.data().title}`);
+    await addActivity(
+      projectId,
+      req.user.id,
+      `Edited task: ${taskDoc.data().title}`
+    );
 
     res.status(200).json({ message: "Task updated successfully" });
   } catch (error) {
@@ -222,10 +229,10 @@ export const updateTaskNotes = async (req, res) => {
   }
 };
 
-export const fetchUpdates = async( req, res) => {
-  const {projectId, taskId} = req.params;
+export const fetchUpdates = async (req, res) => {
+  const { projectId, taskId } = req.params;
 
-  try{
+  try {
     const taskRef = db
       .collection("projects")
       .doc(projectId)
@@ -240,14 +247,12 @@ export const fetchUpdates = async( req, res) => {
 
     const taskData = taskDoc.data();
     const updates = taskData.updates || [];
-    res
-      .status(200)
-      .json({updates });
-  }catch(error){
+    res.status(200).json({ updates });
+  } catch (error) {
     console.log("Error fetching task updates: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
 export const deleteTask = async (req, res) => {
   const { projectId, taskId } = req.params;
@@ -265,7 +270,11 @@ export const deleteTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    await addActivity(projectId, req.user.id, `Deleted task: ${taskDoc.data().title}`);
+    await addActivity(
+      projectId,
+      req.user.id,
+      `Deleted task: ${taskDoc.data().title}`
+    );
 
     await taskRef.delete();
     res.status(200).json({ message: "Task deleted successfully" });
@@ -275,4 +284,146 @@ export const deleteTask = async (req, res) => {
   }
 };
 
+export const getRecentDeadlines = async (req, res) => {
+  //we need to get the deadlines of all projects
+  const userId = req.user.id;
+  const today = new Date();
+  const sevenDaysFromNow = new Date(today);
+  sevenDaysFromNow.setDate(today.getDate() + 7);
 
+  try {
+    const userRef = db.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+    const projects = userDoc.data().projects || [];
+    const projectIds = projects.map((project) => project.id);
+
+    const projectsSnapshot = await db
+      .collection("projects")
+      .where("id", "in", projectIds)
+      .get();
+
+    if (projectsSnapshot.empty) {
+      return res
+        .status(404)
+        .json({ message: "No projects found for this user" });
+    }
+
+    const deadlines = [];
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const tasksSnapshot = await projectDoc.ref.collection("tasks").get();
+
+      tasksSnapshot.forEach((taskDoc) => {
+        const taskData = taskDoc.data();
+        if (taskData.dueDate && taskData.dueDate.toDate() <= sevenDaysFromNow && taskData.dueDate.toDate() >= today) {
+          deadlines.push({
+            ...taskData,
+            projectId: projectDoc.id,
+            projectTitle: projectDoc.data().title,
+          });
+        }
+      });
+    }
+
+    res.status(200).json({ deadlines });
+  } catch (error) {
+    console.log("Error fetching recent deadlines: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getAllTasks = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const userRef = db.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+    const projects = userDoc.data().projects || [];
+    const projectIds = projects.map((project) => project.id);
+
+    const projectsSnapshot = await db
+      .collection("projects")
+      .where("id", "in", projectIds)
+      .get();
+
+    if (projectsSnapshot.empty) {
+      return res
+        .status(404)
+        .json({ message: "No projects found for this user" });
+    }
+
+    const allTasks = [];
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const taskSnapshot = await projectDoc.ref.collection("tasks").get();
+
+      taskSnapshot.forEach((taskDoc) => {
+        const taskData = taskDoc.data();
+        allTasks.push({
+          ...taskData,
+          projectId: projectDoc.id,
+          projectTitle: projectDoc.data().title,
+        });
+      });
+    }
+
+    res.status(200).json({ tasks: allTasks });
+  } catch (error) {
+    console.log("Error fetching all tasks: ", error);
+    res.status(500).json({ error: "Internal server error", error });
+  }
+};
+
+export const UpdateExpiredTasks = async (req, res) => {
+  const today = new Date();
+  const userId = req.user.id;
+  try {
+    const userRef = db.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+
+    const projects = userDoc.data().projects || [];
+    const projectIds = projects.map((project) => project.id);
+
+    const projectsSnapshot = await db
+      .collection("projects")
+      .where("id", "in", projectIds)
+      .get();
+
+    if (projectsSnapshot.empty) {
+      return res
+        .status(404)
+        .json({ message: "No projects found for this user" });
+    }
+
+    const expiredTasks = [];
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const taskSnapshot = await projectDoc.ref.collection("tasks").get();
+
+      taskSnapshot.forEach((taskDoc) => {
+        const taskData = taskDoc.data();
+
+        if (taskData.dueDate && taskData.dueDate.toDate() < today && taskData.status !== "completed" && taskData.status !== "expired") {
+          expiredTasks.push({
+            ...taskData,
+            projectId: projectDoc.id,
+            projectTitle: projectDoc.data().title,
+          });
+        }
+      });
+    }
+    //update the status of the expired tasks to "expired"
+    for (const task of expiredTasks) {
+      const taskRef = db
+        .collection("projects")
+        .doc(task.projectId)
+        .collection("tasks")
+        .doc(task.id);
+      await taskRef.update({ status: "expired" });
+    }
+
+    res.status(200).json({ expiredTasks });
+  } catch (error) {
+    console.log("Error fetching expired tasks: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

@@ -13,6 +13,10 @@ import NavProjects from "./nav-projects";
 import { poppins } from "@/app/fonts/fonts";
 import NavTasks from "./nav-tasks";
 import { NavUser } from "./nav-user";
+import Link from "next/link";
+import { fetchProjectDetails } from "@/app/utilities/projectUtils";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const {
   Calendar,
@@ -40,11 +44,6 @@ const data = {
       icon: Calendar,
     },
     {
-      title: "Analytics",
-      url: "/dashboard/analytics",
-      icon: PieChart,
-    },
-    {
       title: "Activity",
       url: "/dashboard/activity",
       icon: Activity,
@@ -53,26 +52,6 @@ const data = {
       title: "Projects",
       url: "/dashboard/projects",
       icon: FolderKanban,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-      isActive: true,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-      isActive: false,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-      isActive: false,
     },
   ],
   tasks: [
@@ -95,13 +74,42 @@ const data = {
 };
 
 export function AppSidebar({ handleLogout, ...props }) {
+  const [projects, setProjects] = useState([]);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await fetchProjectDetails();
+        console.log("Fetched project data:", data); // Debugging line
+        if (data) {
+          const projectDetails = data.map((project) => {
+            const url = `/dashboard/projects/${project.id}`;
+            console.log("Project:", project); // Debugging line
+            return {
+              name: project.title,
+              url,
+              icon: FolderKanban,
+              isActive: pathname === url,
+            };
+          });
+          setProjects(projectDetails);
+        }
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, [pathname]);
+
   return (
     <Sidebar {...props} className={poppins.className} collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Image
                     src={"/logo_white.png"}
@@ -115,14 +123,14 @@ export function AppSidebar({ handleLogout, ...props }) {
                     FlowForge
                   </span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain}></NavMain>
-        <NavProjects projects={data.projects}></NavProjects>
+        <NavProjects projects={projects}></NavProjects>
         <NavTasks tasks={data.tasks}></NavTasks>
       </SidebarContent>
       <SidebarFooter>

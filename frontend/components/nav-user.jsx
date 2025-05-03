@@ -32,12 +32,14 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/firebase";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { NotificationDialog } from "./NotificationDialog";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [user, setUser] = useState(null); // State to store user details
-
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [pendingNotificationOpen, setPendingNotificationOpen] = useState(false);
   // Fetch user details
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -67,6 +69,17 @@ export function NavUser() {
     fetchUserDetails();
   }, []);
 
+  useEffect(() => {
+    if (pendingNotificationOpen) {
+      // Slight delay to ensure DropdownMenu is fully closed
+      const timeout = setTimeout(() => {
+        setShowNotifications(true);
+        setPendingNotificationOpen(false);
+      }, 100); // Adjust delay if needed
+      return () => clearTimeout(timeout);
+    }
+  }, [pendingNotificationOpen]);
+
   // Handle logout process
   const handleLogout = async () => {
     try {
@@ -77,7 +90,6 @@ export function NavUser() {
       if (token) {
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
-          {},
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -147,23 +159,10 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
+              <DropdownMenuItem
+                onClick={() => setPendingNotificationOpen(true)}
+              >
+                <Bell className="mr-2 h-4 w-4" />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -174,6 +173,10 @@ export function NavUser() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <NotificationDialog
+          open={showNotifications}
+          onOpenChange={setShowNotifications}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );
